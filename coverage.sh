@@ -4,14 +4,15 @@ set -ex
 
 TEST_CMD=${TEST_CMD:-'echo "TEST_CMD unset; assuming: make test"; make test'}
 
-COVERAGE_DIR=.coverage
+COVERAGE_DIR=$(mktemp -d)
 rm -rf $COVERAGE_DIR
 mkdir -p $COVERAGE_DIR
-pushd $COVERAGE_DIR
 if [ -z "$KEEP" ]; then trap "popd; rm -rf $COVERAGE_DIR" EXIT; fi
 
 # copy over everything
-$(which cp) -r ../* .
+/bin/cp -r ./* $COVERAGE_DIR
+
+pushd $COVERAGE_DIR
 
 # prepare the environment
 eval `opam config env`
@@ -48,3 +49,4 @@ else
   cat summary
 fi
 
+if [ -n "$KEEP" ]; then echo "build output is in $(pwd)"; fi
